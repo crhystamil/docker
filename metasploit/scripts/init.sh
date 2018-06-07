@@ -2,6 +2,6 @@
 
 source /usr/local/rvm/scripts/rvm
 /etc/init.d/postgresql start
-/opt/msf/msfupdate --git-branch master
+#/opt/msf/msfupdate --git-branch master
 exec msfrpcd -P $PASSWORD -f -a 0.0.0.0 -U msf
 # /bin/bash -c "cd /tmp/data && bash"
