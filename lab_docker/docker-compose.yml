@@ -1,0 +1,126 @@
+version: '3'
+services:
+    cppvpn:
+        image: cpp-vpn
+        volumes:
+           - /root/vpn-data:/etc/openvpn
+        cap_add:
+           - NET_ADMIN
+        ports:
+           - "3000:1194/udp"
+        networks:
+           lab_cpp:
+               ipv4_address: 172.21.0.2
+    glassfish_4:
+        image: vulhub/glassfish:4.1
+        environment:
+           - ADMIN_PASSWORD=glassfish
+        networks:
+           lab_cpp:
+               ipv4_address: 172.21.10.4
+    coldfusion:
+        image: vulhub/coldfusion:11u3
+        networks:
+            lab_cpp:
+                ipv4_address: 172.21.10.6
+    drupal_8:
+        image: vulhub/drupal:8.5.0
+        networks:
+            lab_cpp:
+                ipv4_address: 172.21.10.8
+            lab_db:
+    drupal_db:
+        image: mysql:5.5
+        hostname: drupal_db
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=test
+        networks:
+            - lab_db
+
+    phpmyadmin_web:
+        image: vulhub/phpmyadmin:4.4.15.6
+        volumes:
+            - ./vulhub/phpmyadmin/CVE-2018-12613/config.inc.php:/var/www/html/config.inc.php
+        links:
+            - phpmyadmin_db
+        depends_on:
+            - phpmyadmin_db
+        networks:
+            lab_db:
+            lab_cpp:
+                ipv4_address: 172.21.10.7
+    phpmyadmin_db:
+        image: mysql:5.5
+        hostname: mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=test
+        networks:
+            - lab_db
+    pentesterlabdb:
+        image: mysql:5.5
+        environment:
+            MYSQL_ROOT_PASSWORD: rootpasswd
+            MYSQL_DATABASE: exercises
+            MYSQL_USER: admin
+            MYSQL_PASSWORD: admin
+        networks:
+            - lab_db
+    apache_basic_auth:
+        image: crhystamils/apache_basic_auth
+        networks:
+            lab_cpp:
+                ipv4_address: 172.21.20.5
+    pentesterlab01:
+        image: crhystamils/pentesterlab01
+        links:
+            - pentesterlabdb
+        depends_on:
+            - pentesterlabdb
+        networks:
+            lab_cpp:
+                ipv4_address: 172.21.20.6
+            lab_db:
+    mutillidae_web:
+        image: crhystamils/mutillidae
+        links:
+            - mutillidae_db
+        depends_on:
+            - mutillidae_db
+        networks:
+            lab_cpp:
+                ipv4_address: 172.21.20.7
+            lab_db:
+    mutillidae_db:
+        image: mysql:5.5
+        environment:
+            MYSQL_ROOT_PASSWORD: mutillidae
+            MYSQL_DATABASE: mutillidae
+            MYSQL_USER: admin
+            MYSQL_PASSWORD: admin
+        networks:
+            - lab_db
+    juice_shop:
+        image: bkimminich/juice-shop
+        networks:
+             lab_cpp:
+                ipv4_address: 172.21.20.8
+    web_dvwa:
+        image: vulnerables/web-dvwa
+        networks:
+             lab_cpp:
+                ipv4_address: 172.21.20.9
+networks:
+    lab_cpp:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.21.0.0/16
+    lab_db:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.22.0.0/16
