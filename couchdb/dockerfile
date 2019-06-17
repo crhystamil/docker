@@ -1,0 +1,10 @@
+FROM nginx
+
+MAINTAINER Cristhian Lima <crhystamil@gmail.com>
+
+ADD nginx.conf /etc/nginx/nginx.conf
+RUN rm /etc/nginx/conf.d/*
+
+EXPOSE 80
+
+ENTRYPOINT ["nginx"]

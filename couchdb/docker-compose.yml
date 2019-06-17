@@ -1,0 +1,61 @@
+version: "3"
+services:
+ couchdb1:
+  image: couchdb:2.3.1
+  environment:
+   - COUCHDB_USER=user
+   - COUCHDB_PASSWORD=pass
+   - NODENAME=172.16.238.11
+  restart: always
+  volumes:
+   - /home/lain/data/db1:/opt/couchdb/data
+  networks:
+   couchdb-cluster:
+    ipv4_address: 172.16.238.11
+  ports:
+   - "15984:5984"
+ couchdb2:
+  image: couchdb:2.3.1
+  environment:
+   - COUCHDB_USER=user
+   - COUCHDB_PASSWORD=pass
+   - NODENAME=172.16.238.12
+  restart: always
+  volumes:
+   - /home/lain/data/db2:/opt/couchdb/data
+  networks:
+   couchdb-cluster:
+    ipv4_address: 172.16.238.12
+  ports:
+   - "25984:5984"
+ couchdb3:
+  image: couchdb:2.3.1
+  environment:
+   - COUCHDB_USER=user
+   - COUCHDB_PASSWORD=pass
+   - NODENAME=172.16.238.13
+  restart: always
+  volumes:
+   - /home/lain/data/db3:/opt/couchdb/data
+  networks:
+   couchdb-cluster:
+    ipv4_address: 172.16.238.13
+  ports:
+   - "35984:5984"
+ nginx:
+  image: crhystamils/hanginx
+  networks:
+   couchdb-cluster:
+    ipv4_address: 172.16.238.15
+  ports:
+   - "80:80" 
+     
+networks:
+ couchdb-cluster:
+  driver: bridge
+  ipam:
+   driver: default
+   config:
+    - subnet: "172.16.238.0/24"
+
+
